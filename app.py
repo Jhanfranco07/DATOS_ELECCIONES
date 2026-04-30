@@ -152,33 +152,3 @@ st.dataframe(
         ]
     ]
 )
-
-# PARTE 4: MACHINE LEARNING
-
-from sklearn.cluster import KMeans
-from sklearn.preprocessing import StandardScaler
-
-st.header("Parte 4: Análisis con Machine Learning (Clustering)")
-
-# Selección de variables
-X = df[[
-    "ELECTORES_HABIL",
-    "TOT_CIUDADANOS_VOTARON",
-    "POR_CIUDADANOS_VOTARON"
-]]
-
-# Normalizar datos
-scaler = StandardScaler()
-X_scaled = scaler.fit_transform(X)
-
-# Aplicar KMeans
-kmeans = KMeans(n_clusters=3, random_state=42)
-df["cluster"] = kmeans.fit_predict(X_scaled)
-
-st.subheader("Asignación de clusters")
-st.dataframe(df[[
-    "departamento",
-    "provincia",
-    "distrito",
-    "cluster"
-]].head(20))
