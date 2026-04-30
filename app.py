@@ -1,8 +1,10 @@
 import streamlit as st
 import pandas as pd
 
+
 st.set_page_config(
     page_title="Resultados Electorales ONPE 2021",
+    layout="wide"
 )
 
 st.title("Resultados Electorales ONPE 2021")
@@ -229,3 +231,144 @@ clusters_test = kmeans.predict(X_test_scaled)
 
 st.write("Ejemplo de clusters en datos de prueba:")
 st.write(clusters_test[:10])
+
+
+
+# =========================
+# PARTE 8: DISEÑO DE INTERFAZ
+# =========================
+
+import matplotlib.pyplot as plt
+
+st.header("Parte 8: Diseño de interfaz para la ciudadanía")
+
+st.markdown("""
+Esta sección permite consultar los resultados electorales mediante filtros interactivos,
+métricas resumen y gráficos visuales para facilitar la interpretación ciudadana.
+""")
+
+# Filtro lateral
+st.sidebar.header("Filtros de consulta")
+
+departamento_sel = st.sidebar.selectbox(
+    "Selecciona un departamento",
+    sorted(df["departamento"].unique())
+)
+
+df_filtrado = df[df["departamento"] == departamento_sel]
+
+# Tabla principal
+st.subheader(f"Resultados electorales en {departamento_sel}")
+
+st.dataframe(
+    df_filtrado[
+        [
+            "ubigeo",
+            "departamento",
+            "provincia",
+            "distrito",
+            "ELECTORES_HABIL",
+            "TOT_CIUDADANOS_VOTARON",
+            "POR_CIUDADANOS_VOTARON",
+            "ACTAS_PROCESADAS"
+        ]
+    ]
+)
+
+# Métricas
+st.subheader("Resumen del departamento")
+
+total_electores = df_filtrado["ELECTORES_HABIL"].sum()
+total_votantes = df_filtrado["TOT_CIUDADANOS_VOTARON"].sum()
+promedio_participacion = df_filtrado["POR_CIUDADANOS_VOTARON"].mean()
+total_actas = df_filtrado["ACTAS_PROCESADAS"].sum()
+
+col1, col2, col3, col4 = st.columns(4)
+
+with col1:
+    st.metric("Electores habilitados", int(total_electores))
+
+with col2:
+    st.metric("Ciudadanos que votaron", int(total_votantes))
+
+with col3:
+    st.metric("Participación promedio", f"{promedio_participacion:.2f}%")
+
+with col4:
+    st.metric("Actas procesadas", int(total_actas))
+
+# -------------------------
+# GRÁFICO 1
+# -------------------------
+
+st.subheader("Gráfico 1: Top 10 distritos con mayor votación")
+
+top_distritos = df_filtrado.sort_values(
+    by="TOT_CIUDADANOS_VOTARON",
+    ascending=False
+).head(10)
+
+fig1, ax1 = plt.subplots(figsize=(10, 5))
+
+colores_top = [
+    "#0033A0", "#1E56D6", "#D4AF37", "#4CAF50", "#FF9800",
+    "#9C27B0", "#00ACC1", "#E53935", "#795548", "#607D8B"
+]
+
+ax1.bar(
+    top_distritos["distrito"],
+    top_distritos["TOT_CIUDADANOS_VOTARON"],
+    color=colores_top
+)
+
+ax1.set_title(f"Top 10 distritos con mayor votación - {departamento_sel}")
+ax1.set_xlabel("Distrito")
+ax1.set_ylabel("Ciudadanos que votaron")
+ax1.tick_params(axis="x", rotation=45)
+
+st.pyplot(fig1)
+
+st.write("""
+Este gráfico permite identificar los distritos con mayor cantidad de ciudadanos que participaron
+en el proceso electoral dentro del departamento seleccionado.
+""")
+
+# -------------------------
+# GRÁFICO 2
+# -------------------------
+
+st.subheader(" Gráfico 2: Electores habilitados vs ciudadanos que votaron")
+
+comparacion = {
+    "Electores habilitados": total_electores,
+    "Ciudadanos que votaron": total_votantes
+}
+
+fig2, ax2 = plt.subplots(figsize=(7, 5))
+
+ax2.bar(
+    comparacion.keys(),
+    comparacion.values(),
+    color=["#0033A0", "#D4AF37"]
+)
+
+ax2.set_title(f"Comparación electoral - {departamento_sel}")
+ax2.set_ylabel("Cantidad de ciudadanos")
+
+st.pyplot(fig2)
+
+st.write("""
+Este gráfico compara la cantidad de electores habilitados frente a los ciudadanos que realmente
+votaron. La diferencia entre ambos valores permite observar el nivel de abstención electoral.
+""")
+
+# User Flow
+st.subheader(" User Flow")
+
+st.markdown("""
+1. El usuario ingresa a la aplicación.
+2. Selecciona un departamento desde el panel lateral.
+3. Visualiza la información electoral filtrada.
+4. Revisa métricas clave como electores, votantes, participación y actas procesadas.
+5. Interpreta los resultados mediante tablas y gráficos.
+""")
