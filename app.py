@@ -186,3 +186,46 @@ st.dataframe(df[[
 st.subheader("Distribución de clusters")
 
 st.bar_chart(df["cluster"].value_counts())
+
+
+#PARTE 5
+
+#Dividir el dataset
+from sklearn.model_selection import train_test_split
+
+df_ml = df.dropna(subset=[
+    "ELECTORES_HABIL",
+    "TOT_CIUDADANOS_VOTARON",
+    "POR_CIUDADANOS_VOTARON"
+]).copy()
+
+X = df_ml[[
+    "ELECTORES_HABIL",
+    "TOT_CIUDADANOS_VOTARON",
+    "POR_CIUDADANOS_VOTARON"
+]]
+
+X_train, X_test = train_test_split(X, test_size=0.2, random_state=42)
+
+#Entrenar el modelo
+from sklearn.preprocessing import StandardScaler
+from sklearn.cluster import KMeans
+
+scaler = StandardScaler()
+
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+kmeans = KMeans(n_clusters=3, random_state=42)
+kmeans.fit(X_train_scaled)
+
+#Evaluar el modelo
+st.subheader("Evaluación del modelo")
+
+st.write("Inercia del modelo:", kmeans.inertia_)
+
+#Probar el modelo 
+clusters_test = kmeans.predict(X_test_scaled)
+
+st.write("Ejemplo de clusters en datos de prueba:")
+st.write(clusters_test[:10])
