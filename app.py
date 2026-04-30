@@ -152,3 +152,55 @@ st.dataframe(
         ]
     ]
 )
+
+# PARTE 4: MACHINE LEARNING
+
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
+
+st.header("Parte 4: Análisis con Machine Learning (Clustering)")
+
+# Selección de variables
+X = df[[
+    "ELECTORES_HABIL",
+    "TOT_CIUDADANOS_VOTARON",
+    "POR_CIUDADANOS_VOTARON"
+]]
+
+# Normalizar datos
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+# Aplicar KMeans
+kmeans = KMeans(n_clusters=3, random_state=42)
+df["cluster"] = kmeans.fit_predict(X_scaled)
+
+st.subheader("Asignación de clusters")
+st.dataframe(df[[
+    "departamento",
+    "provincia",
+    "distrito",
+    "cluster"
+]].head(20))
+
+st.subheader("Distribución de clusters")
+
+st.bar_chart(df["cluster"].value_counts())
+
+#PARTE 5
+
+from sklearn.model_selection import train_test_split
+
+df_ml = df.dropna(subset=[
+    "ELECTORES_HABIL",
+    "TOT_CIUDADANOS_VOTARON",
+    "POR_CIUDADANOS_VOTARON"
+]).copy()
+
+X = df_ml[[
+    "ELECTORES_HABIL",
+    "TOT_CIUDADANOS_VOTARON",
+    "POR_CIUDADANOS_VOTARON"
+]]
+
+X_train, X_test = train_test_split(X, test_size=0.2, random_state=42)
