@@ -186,21 +186,3 @@ st.dataframe(df[[
 st.subheader("Distribución de clusters")
 
 st.bar_chart(df["cluster"].value_counts())
-
-#PARTE 5
-
-from sklearn.model_selection import train_test_split
-
-df_ml = df.dropna(subset=[
-    "ELECTORES_HABIL",
-    "TOT_CIUDADANOS_VOTARON",
-    "POR_CIUDADANOS_VOTARON"
-]).copy()
-
-X = df_ml[[
-    "ELECTORES_HABIL",
-    "TOT_CIUDADANOS_VOTARON",
-    "POR_CIUDADANOS_VOTARON"
-]]
-
-X_train, X_test = train_test_split(X, test_size=0.2, random_state=42)
